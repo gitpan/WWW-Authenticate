@@ -5,5 +5,3 @@ MANIFEST
 GNU-LICENSE
 README
 test.pl
-samples/cgi_authenticate.cgi
-tools/create_user_table.pl

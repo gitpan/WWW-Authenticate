@@ -23,9 +23,10 @@ BEGIN {
 	@EXPORT = qw(
 		&CheckAuth 
 		&GetSessionCookie 
-		&Login);
+		&Login
+		&Logout);
 
-	$VERSION = '0.5.0';
+	$VERSION = '0.6.0';
 }
 
 # package globals
@@ -195,6 +196,31 @@ sub LoginTheUser
 }
 
 ################################################################################
+# FUNCTION:  Logout($dsn,$sql_username,$sql_password,$sql_table,$session,$uid)
+# DESCRIPTION: The user will be logged out deleting the session value in the DB
+################################################################################
+sub Logout
+{
+	my ($dsn,$sql_username,$sql_password,$sql_table,$session,$uid) = @_;
+	my $SQL = qq| SELECT session FROM $sql_table WHERE session = "$session" AND
+		id = "$uid" |;
+	$dbh = Connect($dsn,$sql_username,$sql_password);
+	my $sth = DatabaseQuery($dbh,$SQL);
+	my ($db_session) = $sth->fetchrow_array();
+	if (!$db_session) {
+		$dbh->disconnect();
+		return 0;  
+	}
+	else {	
+		my $SQL = qq| update $sql_table set session="NULL" where session = "$session"
+				and id = "$uid" |;
+
+		my $sth = DatabaseQuery($dbh,$SQL);
+		$dbh->disconnect();
+	}
+}
+
+################################################################################
 # FUNCTION:  SetSessionCookie
 # DESCRIPTION: sets session of admin with a cookie
 ################################################################################
@@ -230,6 +256,9 @@ WWW::Authenticate - Perl extension for authenticating users
   if(!CheckAuth($dsn,$sql_username,$sql_password,$sql_table,$session)) {
 	# we aren't logged in correctly
   }
+
+	# logout the user
+	Logout($dsn,$sql_username,$sql_password,$sql_table,$session,$uid)
 
 
 

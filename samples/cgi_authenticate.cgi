@@ -17,7 +17,7 @@ my $database = "";
 my $host = "localhost";
 my $sql_username = "";
 my $sql_password = "";
-my $sql_table = "auth_users";
+my $sql_table = "auth_test";
 my $program_name = "cgi_authenticate.cgi";
 
 ################################################################################
@@ -46,6 +46,15 @@ sub Main {
 		}
 		else {
 			ResultScreen("Authentication succeeded.");
+		}
+	}
+	elsif($action eq "Logout") {
+		my ($session,$uid) = GetSessionCookie();
+		if(!Logout($dsn,$sql_username,$sql_password,$sql_table,$session,$uid)) {
+			ResultScreen("LogOut did not succeed.");
+		}
+		else {
+			LoginScreen();
 		}
 	}
 	else {
@@ -102,6 +111,10 @@ sub ResultScreen {
 	<input type="hidden" name="action" value="CheckAuth">
 	<input type="submit" value="Check Authorization">
 	</form>
+	<form method="post" action="$program_name" enctype="multi-part/form-data">
+	<input type="hidden" name="action" value="Logout">
+	<input type="submit" value="LogOut">
+   </form>
 	</body>
 	</html>|;
 }
